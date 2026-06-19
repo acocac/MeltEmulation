@@ -25,13 +25,13 @@ import logging_config
 if __name__ == "__main__":
     dask.config.set(scheduler='threads')
 
-    # out_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed'
-    # os.makedirs(out_path, exist_ok=True)
-    # logging_config.define_root_logger(os.path.join(out_path, f'log.txt'))
-    #
-    # interim_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/raw/firnpack'
-    # in_path_aux = os.path.sep.join([interim_path, 'AuxFiles'])
-    # in_path_h5 = os.path.sep.join([interim_path, 'firnpack'])
+    out_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed'
+    os.makedirs(out_path, exist_ok=True)
+    logging_config.define_root_logger(os.path.join(out_path, f'log.txt'))
+
+    interim_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/raw/firnpack'
+    in_path_aux = os.path.sep.join([interim_path, 'AuxFiles'])
+    in_path_h5 = os.path.sep.join([interim_path, 'firnpack'])
     #
     # # %% --------- Create file with original coordinates for later reconstruction ---------
     # meta = xr.Dataset()
