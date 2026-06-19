@@ -25,89 +25,89 @@ import logging_config
 if __name__ == "__main__":
     dask.config.set(scheduler='threads')
 
-    out_path = os.path.sep.join([project_dir, 'data', 'processed', 'HIRHAM5-ERAInterim', 'v_02'])
-    os.makedirs(out_path, exist_ok=True)
-    logging_config.define_root_logger(os.path.join(out_path, f'log.txt'))
-    
-    interim_path = os.path.sep.join([project_dir, 'data', 'interim', 'ERAI', 'HIRHAM5'])
-    in_path_aux = os.path.sep.join([interim_path, 'AuxFiles'])
-    in_path_h5 = os.path.sep.join([interim_path, 'firnpack'])
-    
-    # %% --------- Create file with original coordinates for later reconstruction ---------
-    meta = xr.Dataset()
-    src = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))
-    # include x and y dims/coords (common names)
-    if "x" in src.coords:
-        meta = meta.assign_coords(x=("x", src["x"].values))
-    elif "x" in src.variables:
-        # if x is just a variable (not a coord), include it as a variable
-        meta["x"] = ("x", src["x"].values)
-
-    if "y" in src.coords:
-        meta = meta.assign_coords(y=("y", src["y"].values))
-    elif "y" in src.variables:
-        meta["y"] = ("y", src["y"].values)
-
-    # lat/lon may be 1D or 2D; include them exactly as in source
-    if "lat" in src:
-        # ensure values are concrete (compute if dask)
-        lat_vals = src["lat"].values
-        meta["lat"] = (src["lat"].dims, lat_vals)
-
-    if "lon" in src:
-        lon_vals = src["lon"].values
-        meta["lon"] = (src["lon"].dims, lon_vals)
-
-    print(meta)
-    meta.attrs = src.attrs
-    filepath = os.path.sep.join([out_path, 'coords_only.zarr'])
-    logging.info(f"GRL mask saved to {filepath}")
-    meta.to_zarr(filepath, mode="w", consolidated=True)
-
-    # %% -------------------- Create stacked nc files for AuxFiles --------------------
-    # -------------------- Create file with GRL mask --------------------
-    filepath = os.path.sep.join([out_path, 'GRLmask.zarr'])
-    ds_basins = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))
-    ds = ds_basins[['glacGRL', 'maskbas']]
-    ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
-    ds = ds.dropna(dim='z', how='all')  # drop all NaN values
-    ds.to_zarr(filepath, mode="w", consolidated=True)
-    logging.info(f"GRL mask saved to {filepath}")
-    ds.close()
-
-
-    # -------------------- Create file with zones --------------------
-    filepath = os.path.sep.join([out_path, 'GRLzones.zarr'])   # output file from create_spatial_subsampling.py
-    ds_zones = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLzones.nc']))
-    ds = ds_zones['zones']
-    ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
-    ds = ds.dropna(dim='z', how='all')  # drop all NaN values
-    ds.to_zarr(filepath, mode="w", consolidated=True)
-    logging.info(f"GRL mask saved to {filepath}")
-    ds_zones.close()
-
-
-    # -------------------- Create file for spatial subsampling --------------------
-    file_name = 'GRL_subsampleidx_5000'    # output file from create_spatial_subsampling.py
-    filepath = os.path.sep.join([out_path, f'{file_name}_flattened.zarr'])
-    ds_t = xr.open_dataset(os.path.sep.join([in_path_aux, f'{file_name}.nc']))  
-    ds = ds_t['subsampling'].astype(np.float32)
-    ds_mask = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))['glacGRL']
-    ds = ds.where(ds_mask==1)
-    ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
-    ds = ds.dropna(dim='z', how='all')  # drop all NaN values
-    ds = ds.chunk({"z": -1})
-    #ds.to_zarr(filepath, mode="w", consolidated=True)
-    ds.to_netcdf(filepath)
-    logging.info(f"Flattened spatial sub-sampling indices saved to {filepath}")
-    ds_t.close()
-    ds.close()
+    # out_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed'
+    # os.makedirs(out_path, exist_ok=True)
+    # logging_config.define_root_logger(os.path.join(out_path, f'log.txt'))
+    #
+    # interim_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/raw/firnpack'
+    # in_path_aux = os.path.sep.join([interim_path, 'AuxFiles'])
+    # in_path_h5 = os.path.sep.join([interim_path, 'firnpack'])
+    #
+    # # %% --------- Create file with original coordinates for later reconstruction ---------
+    # meta = xr.Dataset()
+    # src = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))
+    # # include x and y dims/coords (common names)
+    # if "x" in src.coords:
+    #     meta = meta.assign_coords(x=("x", src["x"].values))
+    # elif "x" in src.variables:
+    #     # if x is just a variable (not a coord), include it as a variable
+    #     meta["x"] = ("x", src["x"].values)
+    #
+    # if "y" in src.coords:
+    #     meta = meta.assign_coords(y=("y", src["y"].values))
+    # elif "y" in src.variables:
+    #     meta["y"] = ("y", src["y"].values)
+    #
+    # # lat/lon may be 1D or 2D; include them exactly as in source
+    # if "lat" in src:
+    #     # ensure values are concrete (compute if dask)
+    #     lat_vals = src["lat"].values
+    #     meta["lat"] = (src["lat"].dims, lat_vals)
+    #
+    # if "lon" in src:
+    #     lon_vals = src["lon"].values
+    #     meta["lon"] = (src["lon"].dims, lon_vals)
+    #
+    # print(meta)
+    # meta.attrs = src.attrs
+    # filepath = os.path.sep.join([out_path, 'coords_only.zarr'])
+    # logging.info(f"GRL mask saved to {filepath}")
+    # meta.to_zarr(filepath, mode="w", consolidated=True)
+    #
+    # # %% -------------------- Create stacked nc files for AuxFiles --------------------
+    # # -------------------- Create file with GRL mask --------------------
+    # filepath = os.path.sep.join([out_path, 'GRLmask.zarr'])
+    # ds_basins = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))
+    # ds = ds_basins[['glacGRL', 'maskbas']]
+    # ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
+    # ds = ds.dropna(dim='z', how='all')  # drop all NaN values
+    # ds.to_zarr(filepath, mode="w", consolidated=True)
+    # logging.info(f"GRL mask saved to {filepath}")
+    # ds.close()
+    #
+    #
+    # # -------------------- Create file with zones --------------------
+    # filepath = os.path.sep.join([out_path, 'GRLzones.zarr'])   # output file from create_spatial_subsampling.py
+    # ds_zones = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLzones.nc']))
+    # ds = ds_zones['zones']
+    # ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
+    # ds = ds.dropna(dim='z', how='all')  # drop all NaN values
+    # ds.to_zarr(filepath, mode="w", consolidated=True)
+    # logging.info(f"GRL mask saved to {filepath}")
+    # ds_zones.close()
+    #
+    #
+    # # -------------------- Create file for spatial subsampling --------------------
+    # file_name = 'GRL_subsampleidx_5000'    # output file from create_spatial_subsampling.py
+    # filepath = os.path.sep.join([out_path, f'{file_name}_flattened.zarr'])
+    # ds_t = xr.open_dataset(os.path.sep.join([in_path_aux, f'{file_name}.nc']))
+    # ds = ds_t['subsampling'].astype(np.float32)
+    # ds_mask = xr.open_dataset(os.path.sep.join([in_path_aux, 'GRLmask.nc']))['glacGRL']
+    # ds = ds.where(ds_mask==1)
+    # ds = ds.stack(z=('x', 'y')).reset_index('z')  # flatten spatial dimension
+    # ds = ds.dropna(dim='z', how='all')  # drop all NaN values
+    # ds = ds.chunk({"z": -1})
+    # #ds.to_zarr(filepath, mode="w", consolidated=True)
+    # ds.to_netcdf(filepath)
+    # logging.info(f"Flattened spatial sub-sampling indices saved to {filepath}")
+    # ds_t.close()
+    # ds.close()
     
 
     # %% Correct daily files: clip to valid ranges, correct runoff values using available water estimates
 
     logging.info(f"Load all daily files ...")
-    years = range(1980, 2017)
+    years = range(2015, 2017)
     dropvars = ['tsl', 'sn', 'evspsbl', 'gld']
     chunks_init = {"time": 1024, "y": 64, "x": 64}
     ds_all = xr.open_mfdataset(
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     # %% -------------------- Restructure dataset, and save daily data to zarr files --------------------
     filepath = os.path.sep.join([out_path, 'base_dataset.zarr'])
-    chunksize = {"time": 2048, "z": -1}
+    chunksize = {"time": 100, "z": -1}
     logging.info("Re-structure dataset...")
     # ds = ds.to_dataarray(dim='variable_names') # stack all variables into an extra dimension
     # ds.name = "data"
@@ -176,12 +176,13 @@ if __name__ == "__main__":
 
     #%% -------------------- Create 10yr rolling averages --------------------
     outpath_roll = filepath.replace('.zarr', '_10yr.zarr')
-    vars_to_roll = ['tas', 'rainfall', 'snfall']
+    # vars_to_roll = ['tas', 'rainfall', 'snfall']
+    vars_to_roll = ['tas', 'snfall']
 
     ds_sel = ds[vars_to_roll]
 
     logging.info(f'Create 10yrs rolling mean for {vars_to_roll}...)')
-    window_size = 3652
+    window_size = 100
     rolling_10yr = ds_sel.rolling(time=window_size, min_periods=window_size)
 
     logging.info(f'  drop nans ...')
