@@ -3,7 +3,7 @@
 #SBATCH -J giant_poc-cpu
 #SBATCH -o .logs/giant-cpu-%j.out
 #SBATCH -e .logs/giant-cpu-%j.err
-#SBATCH -t 15:00:00 #15:30:00
+#SBATCH -t 23:59:00 #15:30:00
 #SBATCH --partition=standard
 #SBATCH --qos=high
 #SBATCH --mem=256GB
