@@ -13,4 +13,4 @@
 # activate the environment
 source $HOME/repos/giant/MeltEmulation/.venv/bin/activate
 
-srun uv run python preprocessing/HIRHAM5_reanalysis/create_basefile.py
+srun uv run python preprocessing/HIRHAM5_reanalysis/create_slurm.py
