@@ -8,7 +8,7 @@
 #SBATCH --qos=high
 #SBATCH --mem=256GB
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=94
 
 # activate the environment
 source $HOME/repos/giant/MeltEmulation/.venv/bin/activate

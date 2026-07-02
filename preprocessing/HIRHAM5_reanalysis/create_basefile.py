@@ -25,7 +25,7 @@ import logging_config
 if __name__ == "__main__":
     dask.config.set(scheduler='threads')
 
-    out_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed/HIRHAM5-ERAInterim/v_02'
+    out_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed/HIRHAM5-ERAInterim/v_03'
     os.makedirs(out_path, exist_ok=True)
     logging_config.define_root_logger(os.path.join(out_path, f'log.txt'))
 
