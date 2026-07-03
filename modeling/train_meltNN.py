@@ -207,7 +207,7 @@ def perform_training(specs):
     trainer = ModelTrainer(model, train_dataloader, val_dataloader, specs['training'], out_dir_abs, auto_mode=auto_mode, device=device)
     start_time = time.time()
     (train_loss, val_loss, epoch, success) = trainer.train()
-    torch.cuda.current_stream().synchronize()
+    # torch.cuda.current_stream().synchronize()
     end_time = time.time()
     trainer.close()
     del trainer
