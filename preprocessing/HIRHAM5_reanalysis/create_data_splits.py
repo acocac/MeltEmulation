@@ -91,7 +91,7 @@ def plot_sampled_dates(all_dates, sampled_dates, fig_path):
 
 if __name__ == "__main__":
     
-    data_path = os.path.sep.join([project_dir, 'data', 'processed', 'HIRHAM5-ERAInterim', 'v_02'])
+    data_path = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed/HIRHAM5-ERAInterim/v_02'
     os.makedirs(data_path, exist_ok=True)
     logging_config.define_root_logger(os.path.join(data_path, f'log_split.txt'))
     
