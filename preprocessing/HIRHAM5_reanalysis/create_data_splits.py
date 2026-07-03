@@ -153,12 +153,12 @@ if __name__ == "__main__":
 
     #%% SMALL DEVELOPMENT DATA SET: Create partition in train/val/test sets with temporal subsampling
     logging.info(f'----------- Create small train/val/test sets for code testing purposes --------------')    
-    train_start_date = pd.to_datetime('1990-01-01T12:00:00.000000000')
-    train_end_date = pd.to_datetime('1990-12-31T12:00:00.000000000')
-    val_start_date = pd.to_datetime('1991-01-01T12:00:00.000000000')
-    val_end_date = pd.to_datetime('1991-12-31T12:00:00.000000000')
-    test_start_date = pd.to_datetime('1992-01-01T12:00:00.000000000')
-    test_end_date = pd.to_datetime('1992-12-31T12:00:00.000000000')
+    train_start_date = pd.to_datetime('2014-01-01T12:00:00.000000000')
+    train_end_date = pd.to_datetime('2014-12-31T12:00:00.000000000')
+    val_start_date = pd.to_datetime('2015-01-01T12:00:00.000000000')
+    val_end_date = pd.to_datetime('2015-12-31T12:00:00.000000000')
+    test_start_date = pd.to_datetime('2016-01-01T12:00:00.000000000')
+    test_end_date = pd.to_datetime('2016-12-31T12:00:00.000000000')
     
     # temporal sub-sampling of training data
     doy = np.arange(1, 367)   # days 1 to 366
