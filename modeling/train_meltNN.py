@@ -32,7 +32,6 @@ sys.path.append(os.path.sep.join([project_dir, 'src']))
 from train_model import ModelTrainer
 from create_dataset import FirnpackCellsDataset, my_collate_fn
 from my_utils import AffinityInitializer, shutdown_dataloader
-from worker_init import worker_init_func
 import read_yaml
 import logging_config
 import predictor
@@ -197,9 +196,9 @@ def perform_training(specs):
     
     pin_memory = device.type == 'cuda'   # pin_memory if using GPU; if use pin_memory with CPU it just creates overhead!
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, collate_fn=my_collate_fn, num_workers=8, persistent_workers=True,
-                                  pin_memory=pin_memory, worker_init_fn=worker_init_func)
+                                  pin_memory=pin_memory, worker_init_fn=AffinityInitializer(base_offset=1, cores_per_worker=1, name='train'))
     val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=False, collate_fn=my_collate_fn, num_workers=4, persistent_workers=True,
-                                pin_memory=pin_memory, worker_init_fn=worker_init_func)
+                                pin_memory=pin_memory, worker_init_fn=AffinityInitializer(base_offset=9, cores_per_worker=1, name='val'))
 
 
     # ---------------------------- Perform training ----------------------------
