@@ -8,29 +8,29 @@ import os
 import logging
 
 
-# class AffinityInitializer:
-#     def __init__(self, base_offset=0, cores_per_worker=1, name='train'):
-#         self.base_offset = base_offset
-#         self.cores_per_worker = cores_per_worker
-#         self.name = name
-#
-#     def __call__(self, worker_id):
-#         affinity_worker_init_fn(worker_id, self.base_offset, self.cores_per_worker, self.name)
-#
-# def affinity_worker_init_fn(worker_id, base_offset=0, cores_per_worker=1, name='train'):
-#     """
-#     Function to set CPU affinity for DataLoader workers.
-#     This is meant to be called by a wrapper function.
-#     """
-#     start_core = base_offset + worker_id * cores_per_worker
-#     end_core = start_core + cores_per_worker
-#     core_ids = list(range(start_core, end_core))
-#     logging.info(f"cores: {core_ids}")
-#     try:
-#         os.sched_setaffinity(0, core_ids)
-#         logging.info(f"[{name} worker {worker_id}] pinned to cores: {core_ids}")
-#     except AttributeError:
-#         logging.info(f"Affinity not supported on this platform.")
+class AffinityInitializer:
+    def __init__(self, base_offset=0, cores_per_worker=1, name='train'):
+        self.base_offset = base_offset
+        self.cores_per_worker = cores_per_worker
+        self.name = name
+
+    def __call__(self, worker_id):
+        affinity_worker_init_fn(worker_id, self.base_offset, self.cores_per_worker, self.name)
+
+def affinity_worker_init_fn(worker_id, base_offset=0, cores_per_worker=1, name='train'):
+    """
+    Function to set CPU affinity for DataLoader workers.
+    This is meant to be called by a wrapper function.
+    """
+    start_core = base_offset + worker_id * cores_per_worker
+    end_core = start_core + cores_per_worker
+    core_ids = list(range(start_core, end_core))
+    logging.info(f"cores: {core_ids}")
+    try:
+        os.sched_setaffinity(0, core_ids)
+        logging.info(f"[{name} worker {worker_id}] pinned to cores: {core_ids}")
+    except AttributeError:
+        logging.info(f"Affinity not supported on this platform.")
 
 
 def shutdown_dataloader(dl):
