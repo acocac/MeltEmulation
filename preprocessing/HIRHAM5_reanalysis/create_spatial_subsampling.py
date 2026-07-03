@@ -18,9 +18,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import xarray as xr
 
-base_dir = os.path.dirname(os.path.abspath('')).split(os.sep + 'preprocessing')[0]
-data_dir = os.path.sep.join([base_dir, 'data', 'interim', 'ERAI', 'HIRHAM5', 'firnpack']) 
-aux_dir = os.path.sep.join([base_dir, 'data', 'interim', 'ERAI', 'HIRHAM5', 'AuxFiles'])
+base_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/interim'
+data_dir = os.path.sep.join([base_dir, 'firnpack'])
+aux_dir = os.path.sep.join([base_dir, 'AuxFiles'])
 
 
 #%% Create zones file based on SMB from 1990-1999
