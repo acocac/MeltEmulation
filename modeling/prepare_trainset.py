@@ -43,7 +43,7 @@ class ZarrDataset():
         self.specs = specs
         self.data_specs = specs['data']
         directory_specs = specs['directories']
-        self.base_dir = os.path.abspath(os.path.sep.join([project_dir, directory_specs['base_dir']]))
+        self.base_dir = os.path.abspath(directory_specs['base_dir'])
         self.file_dir = os.path.sep.join([self.base_dir, directory_specs['data_file']])
         temp_data_split = os.path.sep.join([self.base_dir, directory_specs['temp_split_file']])
         with open(temp_data_split, 'r') as f: 
@@ -644,7 +644,7 @@ if __name__ == "__main__":
     yaml_file = './spec_files/test_file.yml'
     specs = read_yaml.read_yaml_file(os.path.sep.join([script_dir, yaml_file]))
 
-    base_dir = os.path.abspath(os.path.sep.join([project_dir, specs['directories']['base_dir']]))
+    base_dir = os.path.abspath(specs['directories']['base_dir'])
     file_dir = os.path.sep.join([base_dir, specs['directories']['data_file']])
     os.makedirs(file_dir, exist_ok=True)
     logging_config.define_root_logger(os.path.join(file_dir, f'log.txt'))
