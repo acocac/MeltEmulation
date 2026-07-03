@@ -25,6 +25,7 @@ def affinity_worker_init_fn(worker_id, base_offset=0, cores_per_worker=1, name='
     start_core = base_offset + worker_id * cores_per_worker
     end_core = start_core + cores_per_worker
     core_ids = list(range(start_core, end_core))
+    print(core_ids)
     try:
         os.sched_setaffinity(0, core_ids)
         print(f"[{name} worker {worker_id}] pinned to cores: {core_ids}")
