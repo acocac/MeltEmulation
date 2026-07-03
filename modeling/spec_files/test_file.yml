@@ -1,7 +1,7 @@
 # spec file for testing GRAMMLET
 
 directories:
-  base_dir: data/processed/HIRHAM5-ERAInterim/v_02
+  base_dir: /gws/pw/j07/aria_giant/wip/draft/acocac/data/hirham5/processed/HIRHAM5-ERAInterim/v_02
   data_file: test_file
   out_dir: output/test
   overwrite: true
