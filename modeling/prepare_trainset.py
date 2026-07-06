@@ -641,7 +641,7 @@ class ZarrDataset():
 if __name__ == "__main__":
 
     # Make file based on yaml specs
-    yaml_file = './spec_files/test_file.yml'
+    yaml_file = './spec_files/specs_optuna_melt_modularNN.yml'
     specs = read_yaml.read_yaml_file(os.path.sep.join([script_dir, yaml_file]))
 
     base_dir = os.path.abspath(specs['directories']['base_dir'])
