@@ -3,12 +3,12 @@
 #SBATCH -J giant_poc-cpu
 #SBATCH -o .logs/giant-cpu-%j.out
 #SBATCH -e .logs/giant-cpu-%j.err
-#SBATCH -t 04:00:00 #15:30:00
+#SBATCH -t 23:59:00 #15:30:00
 #SBATCH --partition=standard
 #SBATCH --qos=high
 #SBATCH --mem=256GB
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=90
 
 # activate the environment
 source $HOME/repos/giant/MeltEmulation/.venv/bin/activate
