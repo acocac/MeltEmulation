@@ -196,9 +196,9 @@ def perform_training(specs):
     
     pin_memory = device.type == 'cuda'   # pin_memory if using GPU; if use pin_memory with CPU it just creates overhead!
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, collate_fn=my_collate_fn, num_workers=8, persistent_workers=True,
-                                  pin_memory=pin_memory, worker_init_fn=AffinityInitializer(base_offset=1, cores_per_worker=1, name='train'))
+                                  pin_memory=pin_memory, worker_init_fn=None)
     val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=False, collate_fn=my_collate_fn, num_workers=4, persistent_workers=True,
-                                pin_memory=pin_memory, worker_init_fn=AffinityInitializer(base_offset=9, cores_per_worker=1, name='val'))
+                                pin_memory=pin_memory, worker_init_fn=None)
 
 
     # ---------------------------- Perform training ----------------------------
