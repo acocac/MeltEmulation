@@ -76,17 +76,17 @@ def main(out_dir, mode='val', reconstruct_coords=False):
         model_is_auto = False
         eval_modes_auto = [False]
         
-    # # use zones (ablation, percolation, dry-snow)
-    # if 'zones_file' in specs['directories']:
-    #     zone_dir = os.path.sep.join([base_dir, specs['directories']['zones_file']])
-    #     zones = xr.open_dataset(zone_dir)['zones']
-    #     if 'z' in zones.dims:
-    #         zones = zones.set_index(z=['y', 'x']).unstack('z')
-    #     logging.info(f'Loaded zones file from {zone_dir}.')
-    #     zones_nr = np.unique(zones.values[~np.isnan(zones.values)]).tolist()
-    # else:
-    #     zones = None
-    #     zones_nr = 0
+    # use zones (ablation, percolation, dry-snow)
+    if 'zones_file' in specs['directories']:
+        zone_dir = os.path.sep.join([base_dir, specs['directories']['zones_file']])
+        zones = xr.open_dataset(zone_dir)['zones']
+        if 'z' in zones.dims:
+            zones = zones.set_index(z=['y', 'x']).unstack('z')
+        logging.info(f'Loaded zones file from {zone_dir}.')
+        zones_nr = np.unique(zones.values[~np.isnan(zones.values)]).tolist()
+    else:
+        zones = None
+        zones_nr = 0
 
     # use basins
     basins_dir = os.path.sep.join([base_dir, 'GRLmask.zarr'])
