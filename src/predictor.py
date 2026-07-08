@@ -473,7 +473,7 @@ class ModelPredictor():
 
 
     def get_scaler(self): 
-        self.scaler_path = os.path.sep.join([ project_dir, self.specs['directories']['base_dir'], self.specs['directories']['data_file'], 'std_scaler.npz' ]) 
+        self.scaler_path = os.path.sep.join([self.specs['directories']['base_dir'], self.specs['directories']['data_file'], 'std_scaler.npz' ])
         logging.info(f"Load scaler file {self.scaler_path}")
         with np.load(self.scaler_path) as npz:
             self.scaler = {k: npz[k].copy() for k in npz.files}
