@@ -39,7 +39,7 @@ def main(out_dir, mode='val', reconstruct_coords=False):
           but can also be the filename of a preprocessd zarr file
     reconstruct_coords: if True, use reference coordinates to reconstruct lon/lat from x/y
     """
-    model_dir = os.path.abspath(os.path.sep.join([project_dir, out_dir]))
+    model_dir = os.path.abspath(out_dir)
     specs = read_yaml.read_yaml_file(os.path.sep.join([model_dir, 'specs.yml']))
     logging_config.define_root_logger(os.path.join(model_dir, f'log_eval_{mode}.txt'))
     logging.getLogger().setLevel(logging.INFO)
@@ -58,7 +58,7 @@ def main(out_dir, mode='val', reconstruct_coords=False):
         pass
     
     # ---------------------------- Read data ----------------------------
-    base_dir = os.path.abspath(os.path.sep.join([project_dir, specs['directories']['base_dir']]))
+    base_dir = os.path.abspath(specs['directories']['base_dir'])
     
     zarrset = ZarrDataset(specs)
     var_dict = zarrset.get_variable_dict()
