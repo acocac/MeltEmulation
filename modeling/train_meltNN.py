@@ -317,7 +317,7 @@ def perform_training(specs):
 
 
 parser = argparse.ArgumentParser(description='Train meltNN model')
-parser.add_argument('-s', '--specifications', default='./spec_files/test_file.yml',
+parser.add_argument('-s', '--specifications', default='./spec_files/specs_melt_modularNN_noseason.yml',
                     help='name of yaml-file with model and training initialisation')
 args = parser.parse_args("")
 

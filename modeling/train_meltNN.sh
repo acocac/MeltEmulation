@@ -21,4 +21,4 @@ source $HOME/repos/giant/MeltEmulation/.venv/bin/activate
 export PATH=/usr/local/cuda-12.8/bin${PATH:+:${PATH}}
 
 # submit the code
-srun uv run python modeling/train_meltNN.py --specifications ./spec_files/test_file.yml
+srun uv run python modeling/train_meltNN.py --specifications ./spec_files/specs_melt_modularNN_noseason.yml
