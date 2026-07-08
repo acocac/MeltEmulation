@@ -63,6 +63,7 @@ class FirnpackCellsDataset(Dataset):
             self.sequ_len = 1       
         
         with xr.open_zarr(self.file_dir, consolidated=True, chunks='auto') as ds:
+            ds = ds.unify_chunks()
             self.data_var_names = list(ds.coords["variable_names"].values)
             logging.info(f'Variable names in dataset: {self.data_var_names}')
             self.batch_dim = "time"
@@ -135,7 +136,7 @@ class FirnpackCellsDataset(Dataset):
         if self.data is None:
             # open the dataset (this happens in the process that calls __getitem__,
             # which is each DataLoader worker process when num_workers>0)
-            self.data = xr.open_zarr(self.file_dir, consolidated=True, chunks="auto")
+            self.data = xr.open_zarr(self.file_dir, consolidated=True, chunks="auto").unify_chunks()
             # register a finalizer so that when this object is GC'd in this process
             # the underlying store will be closed even if __del__ isn't called.
             try:
