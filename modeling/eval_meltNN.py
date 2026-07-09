@@ -239,19 +239,19 @@ def main(out_dir, mode='val', reconstruct_coords=False):
             #     logging.info(f'Saved plot to {fig_dir}.')
             #     plt.close()
                                 
-            # # make maps of predictions, true values, and differences true-pred
-            # val_fig_dir_map = os.path.sep.join([val_fig_dir, 'maps'])
-            # os.makedirs(val_fig_dir_map, exist_ok=True)
+            # make maps of predictions, true values, and differences true-pred
+            val_fig_dir_map = os.path.sep.join([val_fig_dir, 'maps'])
+            os.makedirs(val_fig_dir_map, exist_ok=True)
            
-            # # totals per year
-            # years = np.unique(ds.time.dt.year.values)
-            # for y in years:
-            #     ax = m_eval.plot_map(year=y, join_colorbar=True)
-            #     plt.show()
-            #     fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_{y}.png"])
-            #     ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
-            #     logging.info(f'Saved plot to {fig_dir}.')
-            #     plt.close()
+            # totals per year
+            years = np.unique(ds.time.dt.year.values)
+            for y in years:
+                ax = m_eval.plot_map(year=y, join_colorbar=True)
+                plt.show()
+                fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_{y}.png"])
+                ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+                logging.info(f'Saved plot to {fig_dir}.')
+                plt.close()
 
 
             # # test year per month
