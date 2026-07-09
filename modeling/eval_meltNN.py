@@ -220,16 +220,16 @@ def main(out_dir, mode='val', reconstruct_coords=False):
                 logging.info(f'Saved plot to {fig_dir}.')
                 plt.close()
             
-            # plot density of predictions vs target for each basin separately
-            logging.info(f'Plot groundtruth vs prediction density per basin ...')
-            for basin in basins_nr:
-                ax = m_eval.plot_pred_vs_target_density(f'{target_name}_true', f'{target_name}_pred', ref_line='equal', zone_cat=basin)
-                plt.show()
-                fig_dir = os.path.sep.join([val_fig_dir, f"true_vs_pred_{target_name}_density_basin{str(basin)}.png"])
-                ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
-                logging.info(f'Saved plot to {fig_dir}.')
-                plt.close()
-            
+            # # plot density of predictions vs target for each basin separately
+            # logging.info(f'Plot groundtruth vs prediction density per basin ...')
+            # for basin in basins_nr:
+            #     ax = m_eval.plot_pred_vs_target_density(f'{target_name}_true', f'{target_name}_pred', ref_line='equal', zone_cat=basin)
+            #     plt.show()
+            #     fig_dir = os.path.sep.join([val_fig_dir, f"true_vs_pred_{target_name}_density_basin{str(basin)}.png"])
+            #     ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+            #     logging.info(f'Saved plot to {fig_dir}.')
+            #     plt.close()
+            #
             # # plot for test year per month
             # year = np.unique(ds.time.dt.year.values)[-1]  # last year in dataset
             # for m in list(calendar.month_name[1:]):
