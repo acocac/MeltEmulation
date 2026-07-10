@@ -7,7 +7,9 @@ import xarray as xr
 import matplotlib.pyplot as plt
 
 # import local modules
-sys.path.append('../../src')
+script_dir = os.path.abspath(os.path.dirname(__file__))
+project_dir = os.path.sep.join([script_dir, '..'])
+sys.path.append(os.path.sep.join([project_dir , 'src']))
 import eval_model
 
 model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/1h622vp9'
