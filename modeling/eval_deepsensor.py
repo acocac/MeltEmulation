@@ -12,7 +12,7 @@ project_dir = os.path.sep.join([script_dir, '..'])
 sys.path.append(os.path.sep.join([project_dir , 'src']))
 import eval_model
 
-model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/1h622vp9'
+model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/i55x1lsp'
 ds = xr.open_zarr(os.path.join(model_dir, 'pred_test.zarr'), chunks='auto')
 
 # run evaluation for all target variables
