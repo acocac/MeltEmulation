@@ -287,17 +287,17 @@ def main(out_dir, mode='val', reconstruct_coords=False):
             #     logging.info(f'Saved plot to {fig_dir}.')
             #     plt.close()
 
-            # # some single days across the year
-            # residual_max = {'albedom':None, 'snmel':30}
-            # value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
-            # # dates = pd.date_range(start="2016-01-01", end="2016-12-01", freq="1MS")+pd.Timedelta(days=20)
-            # for d in dates:
-            #     date_str = d.strftime('%Y-%m-%d')
-            #     ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
-            #     fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_date{date_str}.png"])
-            #     ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
-            #     logging.info(f'Saved plot to {fig_dir}.')
-            #     plt.close()
+            # some single days across the year
+            residual_max = {'albedom':None, 'snmel':30}
+            value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
+            dates = pd.date_range(start="2016-01-01", end="2016-12-01", freq="1MS")+pd.Timedelta(days=20)
+            for d in dates:
+                date_str = d.strftime('%Y-%m-%d')
+                ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
+                fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_date{date_str}.png"])
+                ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+                logging.info(f'Saved plot to {fig_dir}.')
+                plt.close()
 
         
     logging.shutdown()
