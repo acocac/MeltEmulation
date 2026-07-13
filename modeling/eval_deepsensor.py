@@ -97,7 +97,7 @@ for i, target_name in enumerate(target_names):
     # some July days
     residual_max = {'albedom':None, 'snmel':30}
     value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
-    for d in ds.time[180:221:10]:
+    for d in ds.time[182:223:10]:
         date_str = pd.to_datetime(d.astype('datetime64[D]').item()).strftime('%Y-%m-%d')
         ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
         fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_date{date_str}.png"])
