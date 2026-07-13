@@ -852,7 +852,7 @@ class ModelEvaluator():
         margin = 0.02 * 2 * absdiff
         norm = mcolors.TwoSlopeNorm(vmin=-absdiff - margin, vcenter=0, vmax=absdiff + margin)
 
-        cmap = mpl.colormaps['Greys'].copy()
+        cmap = mpl.colormaps['Blues'].copy()
         cmap.set_bad((0, 0, 0, 0.0))
         try:
             # axs[2], p2 = plot_greenland_only(residual, ax=axs[2], pcolormesh_kwargs={'cmap': cmap, 'norm': norm})
