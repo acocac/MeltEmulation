@@ -100,7 +100,7 @@ for i, target_name in enumerate(target_names):
     for d in ds.time[182:223:10]:
         date_str = pd.to_datetime(d.astype('datetime64[D]').item()).strftime('%Y-%m-%d')
         ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
-        fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_date{date_str}.png"])
+        fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map_date{date_str}.png"])
         ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
