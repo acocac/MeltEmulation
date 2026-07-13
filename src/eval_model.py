@@ -69,8 +69,8 @@ class ModelEvaluator():
 
         self.true = self.ds[f'{self.target_name}_true'].values.astype(np.float64)
         self.pred = self.ds[f'{self.target_name}_pred'].values.astype(np.float64)
+        self.std = self.ds[f'{self.target_name}_std'].values.astype(np.float64)
 
-    
     def get_rmse(self):
         return self.calc_rmse(self.true, self.pred)
 
@@ -657,8 +657,291 @@ class ModelEvaluator():
 
         plt.suptitle(title)
         return axs[0]
-                
-                
+
+
+    def plot_map_std(self, year=None, month=None, date=None, residual_max=None, value_lim=None, join_colorbar=False):
+        """
+        plot maps of predicted, std target values
+        year: int, e.g. 2020 (can be used together with month)
+        month: str, e.g. 'January' (can be used together with year)
+        date: list of dates to select from the dataset, e.g. ['2020-01-01', '2020-02-01'] (cannot be used together with year or month)
+        residual_max: float, maximum absolute value for residual colorbar (symmetric around zero);
+            if values exceed limit, arrows at the ends of the colorbar indicate that
+        value_lim: tuple (min, max) to set value limits for true and predicted plots; if None, automatic limits are used
+            if values exceed limit, arrows at the ends of the colorbar indicate that
+        """
+        import matplotlib.gridspec as gridspec
+        fig = plt.figure(figsize=(8, 4))
+        axs = [None] * 3
+        display_crs = ccrs.NorthPolarStereo(central_longitude=-40)
+
+        if join_colorbar:
+            # no gap between first two subplots (true and predicted)
+            gs = gridspec.GridSpec(1, 4, width_ratios=[1, 1, 0.12, 1], wspace=0)
+            axs[0] = fig.add_subplot(gs[0, 0], projection=display_crs)
+            axs[1] = fig.add_subplot(gs[0, 1], projection=display_crs, sharey=axs[0])
+            axs[2] = fig.add_subplot(gs[0, 3], projection=display_crs)
+        else:
+            # gap between each subplot
+            gs = gridspec.GridSpec(1, 5, width_ratios=[1, 0.15, 1, 0.15, 1], wspace=0)
+            axs[0] = fig.add_subplot(gs[0, 0], projection=display_crs)
+            axs[1] = fig.add_subplot(gs[0, 2], projection=display_crs)
+            axs[2] = fig.add_subplot(gs[0, 4], projection=display_crs)
+
+        data = self.ds[[f'{self.target_name}_true', f'{self.target_name}_pred', f'{self.target_name}_std']]
+        data = data.rename({f'{self.target_name}_true': 'true', f'{self.target_name}_pred': 'pred', f'{self.target_name}_std': 'std'})
+
+        if date is not None and ((year is not None) or (month is not None)):
+            logging.error('Both date and year/month specified. Specifiy only one of them.')
+            raise ValueError('Both date and year/month specified. Specifiy only one of them.')
+
+        if date is not None:  # plot for one specific day
+            try:
+                date_str = pd.to_datetime(date.astype('datetime64[D]').item()).strftime('%Y-%m-%d')
+            except:
+                date_str = date.strftime('%Y-%m-%d')
+            xx = data['true'].sel(time=date, method='nearest')
+            yy = data['pred'].sel(time=date, method='nearest')
+            std = data['std'].sel(time=date, method='nearest')
+            nr_days = 1
+            xx_daily_values = xx.values.flatten()
+            yy_daily_values = yy.values.flatten()
+            std_daily_values = yy.values.flatten()
+            logging.info(f'Get data from datetime {xx.time.values}')
+            title = f"{self.target_label} {date_str}"
+            cbar_label = self.target_unit
+        elif year is not None:
+            ds_dates = self.ds["time"].values
+            dates_per_year = [d for d in pd.to_datetime(ds_dates) if d.year == year]
+            if month is not None:  # specific month of specific year
+                if isinstance(month, list):
+                    # Multiple months
+                    month_indices = [datetime.strptime(m, "%B").month for m in month]
+                    dates_per_months = [d for d in dates_per_year if d.month in month_indices]
+                    time_mask = np.isin(pd.to_datetime(ds_dates), pd.to_datetime(dates_per_months))
+                    title = f'{self.target_label} {" & ".join(month)} {year} ({self.reduce_time})'
+                    cbar_label = self.target_unit.replace('day', 'season')
+                else:
+                    # Single month (original logic)
+                    month_idx = datetime.strptime(month, "%B").month
+                    dates_per_month = [d for d in dates_per_year if d.month == month_idx]
+                    time_mask = np.isin(pd.to_datetime(ds_dates), pd.to_datetime(dates_per_month))
+                    title = f'{self.target_label} {month} {year} ({self.reduce_time})'
+                    cbar_label = self.target_unit.replace('day', 'month')
+            else:  # one specific year
+                time_mask = np.isin(pd.to_datetime(ds_dates), pd.to_datetime(dates_per_year))
+                title = f'{self.target_label} {year} ({self.reduce_time})'
+                cbar_label = self.target_unit.replace('day', 'year')
+            time_idx = np.where(time_mask)[0]
+            xx = data['true'].isel(time=time_idx)
+            yy = data['pred'].isel(time=time_idx)
+            std = data['std'].isel(time=time_idx)
+            nr_days = len(time_idx)
+            xx_daily_values = xx.values.flatten()
+            yy_daily_values = yy.values.flatten()
+            std_daily_values = std.values.flatten()
+            xx = xx.reduce(getattr(np, self.reduce_time), dim="time")
+            yy = yy.reduce(getattr(np, self.reduce_time), dim="time")
+            std = std.reduce(getattr(np, self.reduce_time), dim="time")
+        elif month is not None:  # specific month (aggregated over all years in dataset)
+            ds_dates = self.ds["time"].values
+            if isinstance(month, list):
+                # Multiple months
+                month_indices = [datetime.strptime(m, "%B").month for m in month]
+                dates_per_month = [d for d in pd.to_datetime(ds_dates) if d.month in month_indices]
+                time_mask = np.isin(pd.to_datetime(ds_dates), pd.to_datetime(dates_per_month))
+                time_idx = np.where(time_mask)[0]
+                title = f'{self.target_label} {" & ".join(month)} '
+                cbar_label = self.target_unit.replace('day', 'season')
+            else:
+                # Single month (original logic)
+                month_idx = datetime.strptime(month, "%B").month
+                dates_per_month = [d for d in pd.to_datetime(ds_dates) if d.month == month_idx]
+                time_mask = np.isin(pd.to_datetime(ds_dates), pd.to_datetime(dates_per_month))
+                time_idx = np.where(time_mask)[0]
+                title = f'{self.target_label} {month} '
+                cbar_label = self.target_unit.replace('day', 'month')
+            years = np.unique(pd.to_datetime(dates_per_month).year)
+            n_years = len(years)
+            xx = data['true'].isel(time=time_idx)
+            yy = data['pred'].isel(time=time_idx)
+            nr_days = len(time_idx)
+            xx_daily_values = xx.values.flatten()
+            yy_daily_values = yy.values.flatten()
+            xx = xx.reduce(getattr(np, self.reduce_time), dim="time")
+            yy = yy.reduce(getattr(np, self.reduce_time), dim="time")
+            if self.reduce_time == 'sum':  # calculated monthly sums, so now we divide by nr years to get average monthly total
+                xx = xx / n_years
+                yy = yy / n_years
+            if n_years == 1:  # In case whole dataset is only one year
+                title = title + f'({self.reduce_time})'
+            else:
+                title = title + f'({self.reduce_time}; avg. across {str(np.min(years))}-{str(np.max(years))})'
+        else:
+            xx = data['true'].sum(dim='time', skipna=False)
+            yy = data['pred'].sum(dim='time', skipna=False)
+            std = data['std'].sum(dim='time', skipna=False)
+            nr_days = len(data['time'])
+            xx_daily_values = data['true'].values.flatten()
+            yy_daily_values = data['pred'].values.flatten()
+            std_daily_values = data['std'].values.flatten()
+            years = np.unique(pd.to_datetime(self.ds["time"].values).year)
+            if len(years) == 1:
+                cbar_label = self.target_unit.replace('day', 'year')
+                title = f'{self.target_label} {years[0]} ({self.reduce_time})'
+            elif len(years) > 1:
+                cbar_label = f'mm w.e.'
+                title = f'{self.target_label} {years.min()}-{years.max()} ({self.reduce_time})'
+
+        # select colormap
+        if self.target_name == 'albedom':
+            cmap = mcolors.ListedColormap(cc.linear_blue_5_95_c73)
+        else:  # good colormap for melt, runoff, etc.:
+            cmap = mcolors.ListedColormap(cc.linear_kryw_5_100_c67[::-1])
+        cmap.set_bad((0, 0, 0, 0.0))
+
+        # get value limits
+        min_x = np.nanmin(xx.values.flatten())
+        max_x = np.nanmax(xx.values.flatten())
+        min_y = np.nanmin(yy.values.flatten())
+        max_y = np.nanmax(yy.values.flatten())
+
+        if join_colorbar:
+            # value limits
+            minval = min(min_x, min_y)
+            maxval = max(max_x, max_y)
+            # minval = min(minval,0)
+            # maxval = max(maxval,1)
+            minval_x, maxval_x, extend_colorbar_x = self._get_value_limits(minval, maxval, value_lim)
+            minval_y, maxval_y, extend_colorbar_y = minval_x, maxval_x, extend_colorbar_x
+        else:
+            minval_x, maxval_x, extend_colorbar_x = self._get_value_limits(min_x, max_x, value_lim)
+            minval_y, maxval_y, extend_colorbar_y = self._get_value_limits(min_y, max_y, value_lim)
+
+        logging.info(f"Max limits (x): {maxval_x}, {maxval_y}")
+
+        # plot true
+        try:
+            axs[0], p0 = plot_greenland_only(xx, ax=axs[0],
+                                             pcolormesh_kwargs={'cmap': cmap, 'vmin': minval_x, 'vmax': maxval_x})
+            axs[1], p1 = plot_greenland_only(yy, ax=axs[1],
+                                             pcolormesh_kwargs={'cmap': cmap, 'vmin': minval_y, 'vmax': maxval_y})
+        except ValueError as e:
+            if "Couldn't find lon/lat variables!" in str(e):
+                logging.info("Plot map on regular grid.")
+                p0 = axs[0].pcolormesh(xx, cmap=cmap, vmin=minval_x, vmax=maxval_x)
+                p1 = axs[1].pcolormesh(yy, cmap=cmap, vmin=minval_y, vmax=maxval_y)
+
+        axs[0].set_title(LABEL_TRUE)
+        axs[0].set_axis_off()
+        axs[1].set_title(LABEL_PRED)
+        axs[1].set_axis_off()
+
+        # plot residuals
+        residual = std
+        mindiff = np.nanmin(residual.values.flatten())
+        maxdiff = np.nanmax(residual.values.flatten())
+        absdiff = max(abs(mindiff), abs(maxdiff), 0.1)
+        if residual_max is not None:
+            extend_colorbarmin = True if residual_max < abs(mindiff) else False
+            extend_colorbarmax = True if residual_max < abs(maxdiff) else False
+            absdiff = residual_max
+        else:
+            extend_colorbarmin = None
+            extend_colorbarmax = None
+        margin = 0.02 * 2 * absdiff
+        norm = mcolors.TwoSlopeNorm(vmin=-absdiff - margin, vcenter=0, vmax=absdiff + margin)
+
+        cmap = mpl.colormaps['Greys'].copy()
+        cmap.set_bad((0, 0, 0, 0.0))
+        try:
+            # axs[2], p2 = plot_greenland_only(residual, ax=axs[2], pcolormesh_kwargs={'cmap': cmap, 'norm': norm})
+            axs[2], p2 = plot_greenland_only(residual, ax=axs[2], pcolormesh_kwargs={'cmap': cmap})
+        except ValueError as e:
+            if "Couldn't find lon/lat variables!" in str(e):
+                p2 = axs[2].pcolormesh(residual, cmap=cmap, norm=norm)
+        axs[2].set_title('Std')
+        axs[2].set_axis_off()
+
+        # make colorbars
+        extra_drop = 0.02  # vertical gap (figure fraction) between axes bottom and colorbar top
+        cbar_height = 0.03  # thickness of both colorbars (figure fraction)
+        bbox0 = axs[0].get_position()
+        bbox1 = axs[1].get_position()
+
+        if join_colorbar:
+            # joined colorbar true and pred
+            x0 = min(bbox0.x0, bbox1.x0)
+            x1 = max(bbox0.x1, bbox1.x1)
+            width01 = x1 - x0
+            y01 = min(bbox0.y0, bbox1.y0) - extra_drop - cbar_height
+            cax01 = fig.add_axes([x0, y01, width01, cbar_height])
+            cb01 = fig.colorbar(p0, cax=cax01, orientation='horizontal', extend=extend_colorbar_x)
+            cb01.set_label(cbar_label)
+        else:
+            x0 = bbox0.x0
+            x1 = bbox0.x1
+            width01 = x1 - x0
+            y0 = bbox0.y0 - extra_drop - cbar_height
+            cax0 = fig.add_axes([x0, y0, width01, cbar_height])
+            cbar = fig.colorbar(p0, cax=cax0, orientation='horizontal', extend=extend_colorbar_x)
+            cbar.set_label(cbar_label)
+
+            x0 = bbox1.x0
+            x1 = bbox1.x1
+            width01 = x1 - x0
+            y0 = bbox1.y0 - extra_drop - cbar_height
+            cax1 = fig.add_axes([x0, y0, width01, cbar_height])
+            cbar = fig.colorbar(p1, cax=cax1, orientation='horizontal', extend=extend_colorbar_y)
+            cbar.set_label(cbar_label)
+
+        # create residual colorbar
+        bbox2 = axs[2].get_position()
+        x3 = bbox2.x0
+        width3 = bbox2.width
+        y3 = bbox2.y0 - extra_drop - cbar_height
+        cax3 = fig.add_axes([x3, y3, width3, cbar_height])
+        if extend_colorbarmin and extend_colorbarmax:
+            extend_res_colorbar = 'both'
+        elif extend_colorbarmin:
+            extend_res_colorbar = 'min'
+        elif extend_colorbarmax:
+            extend_res_colorbar = 'max'
+        else:
+            extend_res_colorbar = 'neither'
+        cb3 = fig.colorbar(p2, cax=cax3, orientation='horizontal', extend=extend_res_colorbar)
+        cb3.set_label(cbar_label)
+
+        # add text
+        if self.target_name == 'snmel':
+            threshold = 1.
+            area_scaling_factor = 1796553.703424 / 58391 / nr_days  # transform number of pixels into km²
+            logging.info(f'Calculate mean melt extent for {nr_days} days...')
+            xx_pos = xx_daily_values[xx_daily_values > threshold]
+            xx_melt_extent = len(xx_pos)
+            axs[0].text(1., 0.0, rf'ME: {int(xx_melt_extent * area_scaling_factor)}km$\mathrm{{^2}}$',
+                        transform=axs[0].transAxes, ha='right')
+            if xx_melt_extent > 100:
+                xx_median = np.median(xx_pos)
+                axs[0].text(1., 0.12, f'med: {xx_median:.2f}', transform=axs[0].transAxes, ha='right')
+                from scipy.stats import iqr
+                xx_iqr = iqr(xx_pos)
+                axs[0].text(1., 0.06, f'IQR: {xx_iqr:.2f}', transform=axs[0].transAxes, ha='right')
+
+            yy_pos = yy_daily_values[yy_daily_values > threshold]
+            yy_melt_extent = len(yy_pos)
+            axs[1].text(1., 0.0, rf'ME: {int(yy_melt_extent * area_scaling_factor)}km$\mathrm{{^2}}$',
+                        transform=axs[1].transAxes, ha='right')
+            if xx_melt_extent > 100:
+                yy_median = np.median(yy_pos)
+                axs[1].text(1., 0.12, f'med: {yy_median:.2f}', transform=axs[1].transAxes, ha='right')
+                yy_iqr = iqr(yy_pos)
+                axs[1].text(1., 0.06, f'IQR: {yy_iqr:.2f}', transform=axs[1].transAxes, ha='right')
+
+        plt.suptitle(title)
+        return axs[0]
+
+
 def plot_loss(out_dir, log_scale=False):
     '''
     Plot the training and validation loss from the loss.csv file in the output directory.

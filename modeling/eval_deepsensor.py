@@ -94,13 +94,38 @@ for i, target_name in enumerate(target_names):
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
 
-    # some July days
-    residual_max = {'albedom':None, 'snmel':30}
-    value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
-    for d in ds.time[182:223:10]:
-        date_str = pd.to_datetime(d.astype('datetime64[D]').item()).strftime('%Y-%m-%d')
-        ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
-        fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map_date{date_str}.png"])
+    # totals per year
+    years = np.unique(ds.time.dt.year.values)
+    for y in years:
+        ax = m_eval.plot_map_std(year=y, join_colorbar=True)
+        plt.show()
+        fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map_std.png"])
         ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
+
+    # some July days
+    residual_max = {'albedom':None, 'snmel':30}
+    value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
+    date = pd.to_datetime("2016-07-21")
+    td = np.timedelta64(12, 'h')
+    date = date + td
+    date_str = date.strftime('%Y-%m-%d')
+    ax = m_eval.plot_map(date=date, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
+    fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map_date{date_str}.png"])
+    ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+    logging.info(f'Saved plot to {fig_dir}.')
+    plt.close()
+
+    # some July days
+    residual_max = {'albedom':None, 'snmel':None}
+    value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
+    date = pd.to_datetime("2016-07-21")
+    td = np.timedelta64(12, 'h')
+    date = date + td
+    date_str = date.strftime('%Y-%m-%d')
+    ax = m_eval.plot_map_std(date=date, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
+    fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map_date{date_str}_std.png"])
+    ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+    logging.info(f'Saved plot to {fig_dir}.')
+    plt.close()
