@@ -860,7 +860,7 @@ class ModelEvaluator():
         except ValueError as e:
             if "Couldn't find lon/lat variables!" in str(e):
                 p2 = axs[2].pcolormesh(residual, cmap=cmap, norm=norm)
-        axs[2].set_title('Std')
+        axs[2].set_title('std')
         axs[2].set_axis_off()
 
         # make colorbars
