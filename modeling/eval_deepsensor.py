@@ -105,7 +105,7 @@ for i, target_name in enumerate(target_names):
         plt.close()
 
     # some July days
-    residual_max = {'albedom':None, 'snmel':30}
+    residual_max = {'albedom':None, 'snmel':40}
     value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
     date = pd.to_datetime("2016-07-21")
     td = np.timedelta64(12, 'h')
