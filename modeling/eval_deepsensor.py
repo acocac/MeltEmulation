@@ -13,7 +13,7 @@ sys.path.append(os.path.sep.join([project_dir , 'src']))
 import eval_model
 
 model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/4flbw8xy/test_results'
-fn = 'snmel_abs_test-no-obs-e1_predictions.nc'
+fn = 'snmel_abs_test-station-e1_predictions'
 ds = xr.open_zarr(os.path.join(model_dir, f'{fn}.zarr'), chunks='auto')
 
 # run evaluation for all target variables
