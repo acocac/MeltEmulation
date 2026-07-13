@@ -12,8 +12,9 @@ project_dir = os.path.sep.join([script_dir, '..'])
 sys.path.append(os.path.sep.join([project_dir , 'src']))
 import eval_model
 
-model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/1c2kqi07'
-ds = xr.open_zarr(os.path.join(model_dir, 'pred_test.zarr'), chunks='auto')
+model_dir = '/gws/pw/j07/aria_giant/wip/draft/acocac/outputs/present/hirham5/4flbw8xy/test_results'
+fn = 'snmel_abs_test-random-land-seed321-e1_predictions'
+ds = xr.open_zarr(os.path.join(model_dir, f'{fn}.zarr'), chunks='auto')
 
 # run evaluation for all target variables
 target_names = ['snmel']
@@ -45,7 +46,7 @@ for i, target_name in enumerate(target_names):
         mbe_main = mbe
         r2_main = r2
 
-    val_fig_dir = os.path.sep.join([model_dir, f'{eval_specifier}_figures'])
+    val_fig_dir = os.path.sep.join([model_dir, f'figures'])
     os.makedirs(val_fig_dir, exist_ok=True)
 
     # plot density of predictions vs target per year
@@ -54,7 +55,7 @@ for i, target_name in enumerate(target_names):
     for y in years:
         ax = m_eval.plot_pred_vs_target_density(f'{target_name}_true', f'{target_name}_pred', year=y, ref_line='equal',
                                                 x_lims=ax_lims[target_name])
-        fig_dir = os.path.sep.join([val_fig_dir, f"true_vs_pred_{target_name}_density_year{y}.png"])
+        fig_dir = os.path.sep.join([val_fig_dir, f"{fn}_hexbin.png"])
         ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
@@ -87,7 +88,7 @@ for i, target_name in enumerate(target_names):
     for y in years:
         ax = m_eval.plot_map(year=y, join_colorbar=True)
         plt.show()
-        fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_{y}.png"])
+        fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map.png"])
         ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
