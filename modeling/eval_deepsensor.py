@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # import local modules
 script_dir = os.path.abspath(os.path.dirname(__file__))
@@ -89,6 +90,17 @@ for i, target_name in enumerate(target_names):
         ax = m_eval.plot_map(year=y, join_colorbar=True)
         plt.show()
         fig_dir = os.path.sep.join([val_fig_dir_map, f"{fn}_map.png"])
+        ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
+        logging.info(f'Saved plot to {fig_dir}.')
+        plt.close()
+
+    # some July days
+    residual_max = {'albedom':None, 'snmel':30}
+    value_lims = {'albedom':(0.35, 0.9), 'snmel':(0,100)}
+    for d in ds.time[180:221:10]:
+        date_str = pd.to_datetime(d.astype('datetime64[D]').item()).strftime('%Y-%m-%d')
+        ax = m_eval.plot_map(date=d, residual_max=residual_max[target_name], value_lim=value_lims[target_name])
+        fig_dir = os.path.sep.join([val_fig_dir_map, f"map_{target_name}_date{date_str}.png"])
         ax.get_figure().savefig(fig_dir, bbox_inches="tight", dpi=300)
         logging.info(f'Saved plot to {fig_dir}.')
         plt.close()
